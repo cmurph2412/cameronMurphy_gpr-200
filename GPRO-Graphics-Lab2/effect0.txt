@@ -1,0 +1,10 @@
+//Effect #1: Checkerboard pattern
+vec4 myEffect1(in vec4 color1, in vec4 color2, in vec2 fragCoord, in float squareSize) //can input color of each for the checkerboard and the size of each square
+{
+    if(mod(floor(fragCoord.x / squareSize) + floor(fragCoord.y / squareSize), 2.0) < 1.0) //determines which tile the pixel is in and returns color
+    {
+        return vec4(color1);
+    }
+    
+    return vec4(color2);
+}
