@@ -1,0 +1,14 @@
+//Effect #3: Creates wave pattern that alternates colors based on position
+vec4 myEffect3(in vec2 fragCoord, in vec2 resolution)
+{
+    float point = cos(fragCoord.x / 50.0 + iTime * 5.0) * (100.0 * sin(iTime)) + resolution.y / 2.0; //Determines what point the line is on the same y axis as the pixel
+    float colorValue = point / resolution.y; //Determines value that determines color based on size of wave
+    
+    //If the pixel is above the line...
+    if(fragCoord.y > point)
+    {
+    	return vec4(colorValue, colorValue, 1.0 - colorValue, 1.0); //Displays color based on color value
+    }
+    
+    return vec4(1.0 - colorValue, 1.0 - colorValue, colorValue, 1.0); //Displays color based on color value (complementary to above)
+}
