@@ -49,6 +49,101 @@ vec3 unitVector(in vec3 v)
     return v / sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
+const float infinity = 10000000.0;
+
+struct hitRecord
+{
+    vec3 p;
+    vec3 normal;
+    float t;
+    
+    bool frontFace;
+};
+    
+struct sphere
+{
+    vec3 center;
+    float radius;
+};
+
+void setFaceNormal(in vec3 rayDirection, in vec3 outwardNormal, out hitRecord rec)
+{
+        rec.frontFace = dot(rayDirection, outwardNormal) < 0.0;
+        rec.normal = rec.frontFace ? outwardNormal: -outwardNormal;
+}
+
+bool hitSphere(in sphere s, in vec3 rayDirection, in vec3 rayOrigin, float tMin, float tMax, hitRecord rec)
+{
+    vec3 oc = rayOrigin - s.center;
+    float a = dot(rayDirection, rayDirection);
+    float halfB = dot(oc, rayDirection);
+    float c = dot(oc, oc) - s.radius * s.radius;
+    float discriminant = halfB * halfB - a * c;
+    
+    if(discriminant > 0.0)
+    {
+        float root = sqrt(discriminant);
+        
+        float temp = (-halfB - root) / a;
+        if(temp < tMax && temp > tMin)
+        {
+            rec.t = temp;
+            rec.p = unitVector(rayOrigin + rec.t * rayDirection);
+            vec3 outwardNormal = (rec.p - s.center) / s.radius;
+            setFaceNormal(rayDirection, outwardNormal, rec);
+            return true;
+        }
+        temp = (-halfB + root) / a;
+        if (temp < tMax && temp > tMin)
+        {
+            rec.t = temp;
+            rec.p = unitVector(rayOrigin + rec.t * rayDirection);
+            vec3 outwardNormal = (rec.p - s.center) / s.radius;
+            setFaceNormal(rayDirection, outwardNormal, rec);
+            return true;
+        }
+    }
+    return false;
+}
+
+/*
+
+class hittable_list : public hittable {
+    public:
+        hittable_list() {}
+        hittable_list(shared_ptr<hittable> object) { add(object); }
+
+        void clear() { objects.clear(); }
+        void add(shared_ptr<hittable> object) { objects.push_back(object); }
+
+        virtual bool hit(
+            const ray& r, double tmin, double tmax, hit_record& rec) const override;
+
+    public:
+        std::vector<shared_ptr<hittable>> objects;
+};
+
+bool hittable_list::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
+    hit_record temp_rec;
+    bool hit_anything = false;
+    auto closest_so_far = t_max;
+
+    for (const auto& object : objects) {
+        if (object->hit(r, t_min, closest_so_far, temp_rec)) {
+            hit_anything = true;
+            closest_so_far = temp_rec.t;
+            rec = temp_rec;
+        }
+    }
+
+    return hit_anything;
+}
+*/
+
+
+
+
+
 // hitSphere: returns whether or not a sphere is hit
 //    center: input the center point of the circle
 //    radius: input the radius of the circle
@@ -72,18 +167,39 @@ float hitSphere(in vec3 center, in float radius, in vec4 rayOrigin, in vec4 rayD
     }
 }
 
+/*
+vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
+{
+    hitRecord rec;
+    if (world.hit(r, 0, infinity, rec))
+    {
+        return 0.5 * (rec.normal + color(1,1,1));
+    }
+    vec3 unit_direction = unit_vector(r.direction());
+    auto t = 0.5*(unit_direction.y() + 1.0);
+    return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0);
+}
+*/
+
 // calcColor: calculate the color of a pixel given a ray
 //    rayDirection: input ray direction
 //    rayOrigin:    input ray origin
 vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
 {
     float t = hitSphere(vec3(0.0, 0.0, -1.0), 0.5, rayOrigin, rayDirection);
+	float t2 = hitSphere(vec3(0.0, -100.5, -1.0), 100.0, rayOrigin, rayDirection);
         
     if(t > 0.0)
     {
         vec4 N = vec4(unitVector(rayOrigin.xyz + t * rayDirection.xyz) - vec3(0.0, 0.0, -1.0), 1.0);
         return 0.5 * vec4(N.x + 1.0, N.y + 1.0, N.z + 1.0, 1.0);
     }
+    if(t2 > 0.0)
+    {
+        //vec4 N = vec4(unitVector(rayOrigin.xyz + t * rayDirection.xyz) - vec3(0.0, 0.0, -1.0), 1.0);
+        return 0.5 * vec4(0.0, 1.0, 0.0, 1.0);
+    }
+    
     //Creates blue and white gradient
     t = 0.5 * (rayDirection.y + 1.0);
     return vec4((1.0 - t) * vec3(1.0, 1.0, 1.0) + t * vec3(0.5, 0.7, 1.0), 1.0);
@@ -107,6 +223,8 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
                  viewportHeight, fragCoord, iResolution.xy);
     calcRay(rayDirection, rayOrigin,
             viewport, focalLength);
+    
+    
 
     // color
     fragColor = calcColor(rayDirection, rayOrigin);
