@@ -68,8 +68,8 @@ struct sphere
 
 void setFaceNormal(in vec3 rayDirection, in vec3 outwardNormal, out hitRecord rec)
 {
-        rec.frontFace = dot(rayDirection, outwardNormal) < 0.0;
-        rec.normal = rec.frontFace ? outwardNormal: -outwardNormal;
+    rec.frontFace = dot(rayDirection, outwardNormal) < 0.0;
+    rec.normal = rec.frontFace ? outwardNormal: -outwardNormal;
 }
 
 bool hitSphere(in sphere s, in vec3 rayDirection, in vec3 rayOrigin, float tMin, float tMax, hitRecord rec)
@@ -186,18 +186,23 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
 //    rayOrigin:    input ray origin
 vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
 {
+    hitRecord rec;
     float t = hitSphere(vec3(0.0, 0.0, -1.0), 0.5, rayOrigin, rayDirection);
 	float t2 = hitSphere(vec3(0.0, -100.5, -1.0), 100.0, rayOrigin, rayDirection);
-        
+            
     if(t > 0.0)
     {
-        vec4 N = vec4(unitVector(rayOrigin.xyz + t * rayDirection.xyz) - vec3(0.0, 0.0, -1.0), 1.0);
+        vec4 N = vec4(unitVector((rayOrigin.xyz + t * rayDirection.xyz) - vec3(0.0, 0.0, -2.5)), 1.0);
         return 0.5 * vec4(N.x + 1.0, N.y + 1.0, N.z + 1.0, 1.0);
+        //return vec4(0.5 * (rec.normal + vec3(1, 1, 1), 1.0));
     }
     if(t2 > 0.0)
     {
         //vec4 N = vec4(unitVector(rayOrigin.xyz + t * rayDirection.xyz) - vec3(0.0, 0.0, -1.0), 1.0);
-        return 0.5 * vec4(0.0, 1.0, 0.0, 1.0);
+        //return 0.5 * vec4(N.x + 1.0, N.y + 1.0, N.z + 1.0, 1.0);
+        //return vec4(0.5 * (rec.normal + vec3(1, 1, 1), 1.0));
+        
+        return vec4(0.5, 1.0, 0.5, 1.0);
     }
     
     //Creates blue and white gradient
