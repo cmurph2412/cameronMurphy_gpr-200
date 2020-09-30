@@ -103,7 +103,7 @@ float lenSq(vec2 x)
 // calcColor: calculate the color of a pixel given a ray
 //    rayDirection: input ray direction
 //    rayOrigin:    input ray origin
-vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
+vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin, in vec3 viewport)
 {
     // DUMMY RESULT: OUTPUT RAY DIRECTION AS-IS
     //  -> what does the ray look like as color?
@@ -127,36 +127,31 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
     //if point is in sphere
     if(lSq <= rSq)
     {
-        // return vec4(0.0, 1.0, 1.0, 1.0);
-        // dx, dy, r
+        //Calculating sphere attributes
         dp.z = rSq - lSq;
-        
         vec3 position = sphere.center.xyz + vec3(dp.x, dp.y, sqrt(dp.z));
-        
         vec3 normal = (position - sphere.center.xyz) / sphere.radius;
+        vec4 baseColor = vec4(normal * 0.5 + 0.5, 1.0); //Calculating color based on normal
         
-        vec4 baseColor = vec4(normal * 0.5 + 0.5, 1.0);
-        //vec4 baseColor = vec4(0.0, 1.0, 0.0, 1.0);
-        
-        //Calculating Color
+        //Calculating lighting
         vec4 lightVector = normalize(light.center - asPoint(position));
-        
-        //vec4 diffuseCoefficient = max(vec4(0.0, 0.0, 0.0, 0.0), asPoint(normal) * lightVector);
-        
-        
-        
         float pointDistance = distance(asPoint(position), light.center);
-        
         float attenuatedIntensity = 1.0 / (1.0 + pointDistance / light.intensity + (pointDistance * pointDistance) / (light.intensity * light.intensity));
-        
         float diffuseIntensity = max(0.0, dot(lightVector, asPoint(normal)));
-        //vec4 diffuseIntensity = diffuseCoefficient * attenuatedIntensity;
         
-        vec4 finalColor = baseColor * diffuseIntensity * light.color;
+        //Phong lighting
+        float highlightExponent = 1.0;
+        vec4 reflectedLightVector = reflect(-lightVector, asPoint(normal));
+        vec4 viewVector = normalize(asPoint(viewport) - asPoint(position));
+        float specularCoeffecient = max(0.0, dot(viewVector, reflectedLightVector));
+        float specularIntensity = pow(specularCoeffecient, highlightExponent);
         
+        vec4 globalAmbientColor = vec4(0.0, 0.0, 0.01, 1.0);
+        vec4 specularReflectionColor = vec4(0.0, 0.0, 0.0, 1.0);
         
+        vec4 finalColor = light.intensity * globalAmbientColor + (diffuseIntensity * baseColor + specularIntensity * specularReflectionColor) * light.color;
+        //vec4 finalColor = baseColor * diffuseIntensity * light.color;
         return finalColor;
-        return baseColor;
     }
 	
 	// BACKGROUND
@@ -188,5 +183,5 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     	             fragCoord, iResolution.xy);
     calcRay(rayDirection, rayOrigin, vec3(0.0), viewport);
     
-    fragColor += calcColor(rayDirection, rayOrigin);
+    fragColor += calcColor(rayDirection, rayOrigin, viewport);
 }
