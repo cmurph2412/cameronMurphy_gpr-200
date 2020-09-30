@@ -117,7 +117,7 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin, in vec3 viewport)
     
     // Instantiate Light
     sPointLight light;
-    initLight(light, vec3(1.0, 1.0, -2.5), vec3(1.0, 1.0, 1.0), 100.0);
+    initLight(light, vec3(1.0, 1.0, -1.5), vec3(0.75, 0.75, 1.0), 5.0);
     
     vec3 dp;
     dp.xy = rayDirection.xy - sphere.center.xy;
@@ -140,17 +140,19 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin, in vec3 viewport)
         float diffuseIntensity = max(0.0, dot(lightVector, asPoint(normal)));
         
         //Phong lighting
-        float highlightExponent = 1.0;
+        float highlightExponent = 10.0;
+        float higherExponent = highlightExponent * 4.0;
         vec4 reflectedLightVector = reflect(-lightVector, asPoint(normal));
         vec4 viewVector = normalize(asPoint(viewport) - asPoint(position));
         float specularCoeffecient = max(0.0, dot(viewVector, reflectedLightVector));
-        float specularIntensity = pow(specularCoeffecient, highlightExponent);
+        //float specularIntensity = pow(specularCoeffecient, highlightExponent); //PHONG
+        float halfwayVector = dot(asPoint(normal), normalize(lightVector + viewVector));
+        float specularIntensity = pow(halfwayVector, higherExponent); //BLINN-PHONG
         
-        vec4 globalAmbientColor = vec4(0.0, 0.0, 0.01, 1.0);
-        vec4 specularReflectionColor = vec4(0.0, 0.0, 0.0, 1.0);
+        vec4 globalAmbientColor = vec4(0.0, 0.0, 0.0, 1.0);
+        vec4 specularReflectionColor = vec4(1.0, 1.0, 1.0, 1.0);
         
         vec4 finalColor = light.intensity * globalAmbientColor + (diffuseIntensity * baseColor + specularIntensity * specularReflectionColor) * light.color;
-        //vec4 finalColor = baseColor * diffuseIntensity * light.color;
         return finalColor;
     }
 	
