@@ -175,12 +175,14 @@ color4 crossFade(vec4 tex1, vec4 tex2)
     return mix(tex1, tex2, mixAmount);
 }
 
-/*
-color4 distortionEffect()
+color4 distortionEffect(sCoord loc)
 {
-    //stub
+    //float point = sin(iTime) * 5.0;
+    loc.x = loc.x + sin(loc.x * 5.0);
+    return texture(iChannel0, loc + iTime);
 }
 
+/*
 color4 lightingShading()
 {
     //stub
@@ -208,10 +210,10 @@ color4 calcColor(in sViewport vp, in sRay ray)
     sDCoord res = iChannelResolution[0].xy;
     sScalar ratio = res.y * vp.resolutionInv.y;
     sCoord loc = px / res;
-    loc = ratio * loc + 0.1; // * iTime; // zoom + shift
+    loc = ratio * loc;// + iTime; // zoom + shift
     
-    
-    return crossFade(texture(iChannel0, loc), texture(iChannel1, loc));
+    //return crossFade(texture(iChannel0, loc), texture(iChannel1, loc));
+    return distortionEffect(loc);
     //return texture(iChannel0, loc);
     //turn texture(iChannel0, loc2);
     
