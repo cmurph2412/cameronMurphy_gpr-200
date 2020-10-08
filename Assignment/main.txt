@@ -202,8 +202,8 @@ bool initLight(out sPointLight light, in vec3 center, in vec3 color, in float in
 color4 lightingShading(in sCoord loc, in sViewport vp, in sPointLight light)
 {
     vec3 position = vec3(loc, -1.0);
-    vec3 normal = vec3(0.0, 0.0, 1.0);
-    //vec3 normal = normalize(vec3(vp.pixelCoord, 1.0));
+    //vec3 normal = vec3(vp.pixelCoord, 1.0);
+    vec3 normal = normalize(vec3(loc, 1.0));
     
     vec4 lightVector = normalize(light.center - asPoint(position));
     float pointDistance = distance(asPoint(position), light.center);
@@ -213,25 +213,17 @@ color4 lightingShading(in sCoord loc, in sViewport vp, in sPointLight light)
     return texture(iChannel0, loc) * diffuseIntensity * light.color;
 }
 
-/*
-color4 cubeMap()
+color4 cubeMap(sRay ray)
 {
-    //stub
+    //ray.direction.y = ray.direction.y + iTime;
+    return texture(iChannel2, ray.direction.xyz);
 }
-*/
 
 // calcColor: calculate the color of current pixel
 //	  vp:  input viewport info
 //	  ray: input ray info
 color4 calcColor(in sViewport vp, in sRay ray)
 {
-    // test inputs
-    //return color4(ray.direction.xyz == vp.viewportPoint.xyz); // pass
-    //return color4(lengthSq(vp.viewportPoint.xy) >= 0.25); // pass
-    //return color4(vp.uv, 0.0, 0.0);
-    //return color4(vp.ndc, 0.0, 0.0);
-    //return vp.viewportPoint;
-    
     sCoord px = vp.pixelCoord;
     sDCoord res = iChannelResolution[0].xy;
     sScalar ratio = res.y * vp.resolutionInv.y;
@@ -239,10 +231,14 @@ color4 calcColor(in sViewport vp, in sRay ray)
     loc = ratio * loc;// + iTime; // zoom + shift
     
     //return crossFade(texture(iChannel0, loc), texture(iChannel1, loc));
+    
     //return distortionEffect(loc);
-    sPointLight light;
-    initLight(light, vec3(0.0, 2.0, 1.0), vec3(1.0, 1.0, 1.0), 1.0);
-    return lightingShading(loc, vp, light);
+    
+    //sPointLight light;
+    //initLight(light, vec3(1.0, 2.0, 0.25), vec3(1.0, 1.0, 1.0), 1.0);
+   // return lightingShading(loc, vp, light);
+    
+    return cubeMap(ray);
     
     //return texture(iChannel0, loc);
     //turn texture(iChannel0, loc2);
@@ -273,4 +269,5 @@ void mainImage(out color4 fragColor, in sCoord fragCoord)
     initViewport(vp, viewportHeight, focalLength, fragCoord, iResolution.xy);
     initRayPersp(ray, eyePosition, vp.viewportPoint.xyz);
     fragColor += calcColor(vp, ray);
+}
 }
