@@ -1,0 +1,35 @@
+// GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
+//  -> IMAGE TAB (final)
+
+color4 guassianKernel(in sCoord fragCoord, in float weight, in float xLoc, in float yLoc)
+{
+    fragCoord.x = fragCoord.x + xLoc;
+    fragCoord.y = fragCoord.y + yLoc;
+    
+    sCoord uv = fragCoord / iChannelResolution[0].xy;
+    
+    return weight * texture(iChannel0, uv);
+}
+
+//------------------------------------------------------------
+// SHADERTOY MAIN
+
+// mainImage: process the current pixel (exactly one call per pixel)
+//    fragColor: output final color for current pixel
+//    fragCoord: input location of current pixel in image (in pixels)
+void mainImage(out color4 fragColor, in sCoord fragCoord)
+{
+    // setup
+    // test UV for input image
+    //sCoord uv = fragCoord / iChannelResolution[0].xy;
+    
+    fragColor = (1.0 / 273.0) * (guassianKernel(fragCoord, 1.0, -2.0, -2.0) + guassianKernel(fragCoord, 4.0, -1.0, -2.0) + guassianKernel(fragCoord, 7.0, 0.0, -2.0) + guassianKernel(fragCoord, 4.0, 1.0, -2.0) + guassianKernel(fragCoord, 1.0, 2.0, -2.0)
+                              + guassianKernel(fragCoord, 4.0, -2.0, -1.0) + guassianKernel(fragCoord, 16.0, -1.0, -1.0) + guassianKernel(fragCoord, 26.0, 0.0, -1.0) + guassianKernel(fragCoord, 16.0, 1.0, -1.0) + guassianKernel(fragCoord, 4.0, 2.0, -1.0)
+                              + guassianKernel(fragCoord, 7.0, -2.0, 0.0) + guassianKernel(fragCoord, 26.0, -1.0, 0.0) + guassianKernel(fragCoord, 41.0, 0.0, 0.0) + guassianKernel(fragCoord, 26.0, 1.0, 0.0) + guassianKernel(fragCoord, 7.0, 2.0, 0.0)
+                              + guassianKernel(fragCoord, 4.0, -2.0, 1.0) + guassianKernel(fragCoord, 16.0, -1.0, 1.0) + guassianKernel(fragCoord, 26.0, 0.0, 1.0) + guassianKernel(fragCoord, 16.0, 1.0, 1.0) + guassianKernel(fragCoord, 4.0, 2.0, 1.0)
+                              + guassianKernel(fragCoord, 1.0, -2.0, 2.0) + guassianKernel(fragCoord, 4.0, -1.0, 2.0) + guassianKernel(fragCoord, 7.0, 0.0, 2.0) + guassianKernel(fragCoord, 4.0, 1.0, 2.0) + guassianKernel(fragCoord, 1.0, 2.0, 2.0));
+    
+    // TESTING
+    // set iChannel0 to 'Misc/Buffer A' and fetch sample
+    //fragColor = texture(iChannel0, uv);
+}
