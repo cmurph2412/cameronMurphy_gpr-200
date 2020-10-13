@@ -1,0 +1,28 @@
+// GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
+//  -> IMAGE TAB (final)
+
+//------------------------------------------------------------
+// SHADERTOY MAIN
+
+// mainImage: process the current pixel (exactly one call per pixel)
+//    fragColor: output final color for current pixel
+//    fragCoord: input location of current pixel in image (in pixels)
+void mainImage(out color4 fragColor, in sCoord fragCoord)
+{
+    // test UV for input image
+    sCoord uv = fragCoord / iChannelResolution[0].xy;
+    
+    float exposure = 0.2;
+    //fragColor = texture(iChannel0, uv);
+    
+    //Adapted from textbook https://f.usemind.org/files/b/1/UseMind.ORG_comprehensive-tutorial-and-reference_2015__.pdf#page=484&zoom=100,60,65
+    color4 testColor = texture(iChannel0, uv);
+    float luminance = (testColor.r * 0.2126 + testColor.g * 0.7152 + testColor.b * 0.072); //Relative luminance formula
+    
+    if(luminance < 0.92)
+    {
+    	testColor.rgb = vec3(1.0) - exp(-testColor.rgb * exposure);
+    }
+    
+    fragColor = testColor;
+}
