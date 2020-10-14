@@ -1,0 +1,38 @@
+/*
+ Author:				Cameron-Murphy
+ Class:					GPR-200-01
+ Assignment:			Lab 6: Intro to Post Processing & Composition
+ Due Date:              10/15/20
+*/
+
+// GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
+//  -> BUFFER B TAB (final)
+
+// calcColor: calculate the color of current pixel
+//	  vp:  input viewport info
+//	  ray: input ray info
+color4 calcColor(in sCoord uv)
+{
+    float contrast = 4.0; //Sets contrast between lights and darks
+    
+    //Adapted from textbook https://f.usemind.org/files/b/1/UseMind.ORG_comprehensive-tutorial-and-reference_2015__.pdf#page=484&zoom=100,60,65
+    color4 textureColor = texture(iChannel0, uv);
+    float luminance = (textureColor.r * 0.2126 + textureColor.g * 0.7152 + textureColor.b * 0.072); //Relative luminance formula
+    luminance = pow(luminance, contrast);
+    textureColor.rgb = vec3(1.0) - exp(-textureColor.rgb * luminance);
+    
+    return textureColor;
+}
+
+//------------------------------------------------------------
+// SHADERTOY MAIN
+
+// mainImage: process the current pixel (exactly one call per pixel)
+//    fragColor: output final color for current pixel
+//    fragCoord: input location of current pixel in image (in pixels)
+void mainImage(out color4 fragColor, in sCoord fragCoord)
+{
+    sCoord uv = fragCoord / iChannelResolution[0].xy;
+    
+    fragColor = calcColor(uv);
+}

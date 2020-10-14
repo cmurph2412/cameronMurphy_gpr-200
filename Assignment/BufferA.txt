@@ -1,3 +1,10 @@
+/*
+ Author:				Cameron-Murphy
+ Class:					GPR-200-01
+ Assignment:			Lab 6: Intro to Post Processing & Composition
+ Due Date:              10/15/20
+*/
+
 // GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
 //  -> BUFFER A TAB (scene)
 
@@ -13,10 +20,10 @@ mat4 rotationY( in float angle ) {
 }
 
 //Rotate around cube map dependent on ray
-color4 cubeMap(in sRay ray, in samplerCube channel2)
+color4 cubeMap(in sRay ray, in samplerCube channel)
 {
     ray.direction = ray.direction * rotationY(iTime); //Rotate ray direction based on time
-    return texture(channel2, ray.direction.xyz); //Returns calculated texture
+    return texture(channel, ray.direction.xyz); //Returns calculated texture
 }
 
 // calcColor: calculate the color of current pixel
@@ -24,11 +31,6 @@ color4 cubeMap(in sRay ray, in samplerCube channel2)
 //	  ray: input ray info
 color4 calcColor(in sViewport vp, in sRay ray)
 {
-    // test inputs
-    //return color4(ray.direction.xyz == vp.viewportPoint.xyz); // pass
-    //return color4(lengthSq(vp.viewportPoint.xy) >= 0.25); // pass
-    //return color4(vp.uv, 0.0, 0.0);
-    //return color4(vp.ndc, 0.0, 0.0);
     return cubeMap(ray, iChannel0);
 }
 

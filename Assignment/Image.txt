@@ -1,3 +1,10 @@
+/*
+ Author:				Cameron-Murphy
+ Class:					GPR-200-01
+ Assignment:			Lab 6: Intro to Post Processing & Composition
+ Due Date:              10/15/20
+*/
+
 // GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
 //  -> IMAGE TAB (final)
 
@@ -9,22 +16,22 @@
 //    fragCoord: input location of current pixel in image (in pixels)
 void mainImage(out color4 fragColor, in sCoord fragCoord)
 {
-    // setup
     // test UV for input image
     sCoord uv = fragCoord / iChannelResolution[0].xy;
     
-    // TESTING
-    // set iChannel0 to 'Misc/Buffer A' and fetch sample
-    
+    //Determines colors to merge
     color4 firstColor = texture(iChannel0, uv);
     color4 secondColor = texture(iChannel1, uv);
     
+    //Base
+    //fragColor = texture(iChannel1, uv);
+    
     //Add
-    //fragColor = firstColor + secondColor;
+    fragColor = firstColor + secondColor;
     
     //Mix
-    float mixBrightness = 2.0;
-    fragColor = mix(firstColor, secondColor, mixBrightness);
+    //float mixBrightness = 1.0;
+    //fragColor = mix(firstColor, secondColor, mixBrightness);
     
     //Screen
     //fragColor = 1.0 - (1.0 - firstColor) * (1.0 - secondColor);

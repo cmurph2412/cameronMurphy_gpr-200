@@ -1,0 +1,45 @@
+/*
+ Author:				Cameron-Murphy
+ Class:					GPR-200-01
+ Assignment:			Lab 6: Intro to Post Processing & Composition
+ Due Date:              10/15/20
+*/
+
+// GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
+//  -> BUFFER C TAB (final)
+
+//Determines individual elements for guassian blur
+color4 guassianKernel(in sCoord fragCoord, in float weight, in float xLoc, in float yLoc)
+{
+    //Changes coord depending on how many pixels away
+    fragCoord.x = fragCoord.x + xLoc;
+    fragCoord.y = fragCoord.y + yLoc;
+    sCoord uv = fragCoord / iChannelResolution[0].xy;
+    
+    //multiplies determined texture to weight
+    return weight * texture(iChannel0, uv);
+}
+
+// calcColor: calculate the color of current pixel
+//	  vp:  input viewport info
+//	  ray: input ray info
+color4 calcColor(in sCoord fragCoord)
+{
+    //Calculates blur using 5x5 Guassian blur
+    return ((1.0 / 273.0) * (guassianKernel(fragCoord, 1.0, -2.0, -2.0) + guassianKernel(fragCoord, 4.0, -1.0, -2.0) + guassianKernel(fragCoord, 7.0, 0.0, -2.0) + guassianKernel(fragCoord, 4.0, 1.0, -2.0) + guassianKernel(fragCoord, 1.0, 2.0, -2.0)
+                              + guassianKernel(fragCoord, 4.0, -2.0, -1.0) + guassianKernel(fragCoord, 16.0, -1.0, -1.0) + guassianKernel(fragCoord, 26.0, 0.0, -1.0) + guassianKernel(fragCoord, 16.0, 1.0, -1.0) + guassianKernel(fragCoord, 4.0, 2.0, -1.0)
+                              + guassianKernel(fragCoord, 7.0, -2.0, 0.0) + guassianKernel(fragCoord, 26.0, -1.0, 0.0) + guassianKernel(fragCoord, 41.0, 0.0, 0.0) + guassianKernel(fragCoord, 26.0, 1.0, 0.0) + guassianKernel(fragCoord, 7.0, 2.0, 0.0)
+                              + guassianKernel(fragCoord, 4.0, -2.0, 1.0) + guassianKernel(fragCoord, 16.0, -1.0, 1.0) + guassianKernel(fragCoord, 26.0, 0.0, 1.0) + guassianKernel(fragCoord, 16.0, 1.0, 1.0) + guassianKernel(fragCoord, 4.0, 2.0, 1.0)
+                              + guassianKernel(fragCoord, 1.0, -2.0, 2.0) + guassianKernel(fragCoord, 4.0, -1.0, 2.0) + guassianKernel(fragCoord, 7.0, 0.0, 2.0) + guassianKernel(fragCoord, 4.0, 1.0, 2.0) + guassianKernel(fragCoord, 1.0, 2.0, 2.0)));
+}
+
+//------------------------------------------------------------
+// SHADERTOY MAIN
+
+// mainImage: process the current pixel (exactly one call per pixel)
+//    fragColor: output final color for current pixel
+//    fragCoord: input location of current pixel in image (in pixels)
+void mainImage(out color4 fragColor, in sCoord fragCoord)
+{
+    fragColor = calcColor(fragCoord);
+}
