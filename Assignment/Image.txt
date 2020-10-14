@@ -15,5 +15,20 @@ void mainImage(out color4 fragColor, in sCoord fragCoord)
     
     // TESTING
     // set iChannel0 to 'Misc/Buffer A' and fetch sample
-    fragColor = texture(iChannel0, uv);
+    
+    color4 firstColor = texture(iChannel0, uv);
+    color4 secondColor = texture(iChannel1, uv);
+    
+    //Add
+    //fragColor = firstColor + secondColor;
+    
+    //Mix
+    float mixBrightness = 2.0;
+    fragColor = mix(firstColor, secondColor, mixBrightness);
+    
+    //Screen
+    //fragColor = 1.0 - (1.0 - firstColor) * (1.0 - secondColor);
+    
+    //Color Dodge
+    //fragColor = secondColor / (1.0 - firstColor);
 }
