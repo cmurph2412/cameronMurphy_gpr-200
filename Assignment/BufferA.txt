@@ -1,0 +1,65 @@
+//Implements lighting into textures (Built off of my lab 4)
+color4 lightingShading(in sCoord loc, in sPointLight light, in sampler2D iChannel0)
+{
+    //Calculates position and normals
+    vec3 position = vec3(loc, -1.0);
+    vec3 normal = normalize(vec3(loc, 1.0));
+    
+    //Calculates diffuse intensity using previous formula
+    vec4 lightVector = normalize(light.center - asPoint(position));
+    float pointDistance = distance(asPoint(position), light.center);
+    float attenuatedIntensity = 1.0 / (1.0 + pointDistance / light.intensity + (pointDistance * pointDistance) / (light.intensity * light.intensity));
+    float diffuseIntensity = max(0.0, dot(lightVector, asPoint(normal)));
+    
+    return texture(iChannel0, loc) * diffuseIntensity * light.color;
+}
+
+//Rotate around cube map dependent on ray
+color4 cubeMap(in sRay ray, in samplerCube channel2)
+{
+    ray.direction = ray.direction * rotationY(iTime); //Rotate ray direction based on time
+    //distortionEffect(ray.direction.xy, 0.1, 10.0, 0.25);  //Distortion not working on the ray
+    return texture(channel2, ray.direction.xyz); //Returns calculated texture
+}
+
+// calcColor: calculate the color of current pixel
+//	  vp:  input viewport info
+//	  ray: input ray info
+color4 calcColor(in sViewport vp, in sRay ray)
+{
+    //Determining location of pixel
+    sCoord px = vp.pixelCoord;
+    sDCoord res = iChannelResolution[0].xy;
+    sScalar ratio = res.y * vp.resolutionInv.y;
+    sCoord loc = px / res;
+    loc = ratio * loc;// + iTime; // zoom + shift
+    
+    sPointLight light;
+    initLight(light, vec3(iMouse.x / 400.0 + 1.0, iMouse.y / 225.0 + 1.0, 0.25), vec3(1.0, 1.0, 1.0), 1.0);
+    return lightingShading(loc, light, iChannel0);
+}
+
+
+//------------------------------------------------------------
+// SHADERTOY MAIN
+
+// mainImage: process the current pixel (exactly one call per pixel)
+//    fragColor: output final color for current pixel
+//    fragCoord: input location of current pixel in image (in pixels)
+void mainImage(out color4 fragColor, in sCoord fragCoord)
+{
+    // viewing plane (viewport) inputs
+    const sBasis eyePosition = sBasis(0.0);
+    const sScalar viewportHeight = 2.0, focalLength = 1.5;
+    
+    // viewport info
+    sViewport vp;
+
+    // ray
+    sRay ray;
+    
+    // render
+    initViewport(vp, viewportHeight, focalLength, fragCoord, iResolution.xy);
+    initRayPersp(ray, eyePosition, vp.viewportPoint.xyz);
+    fragColor += calcColor(vp, ray);
+}
