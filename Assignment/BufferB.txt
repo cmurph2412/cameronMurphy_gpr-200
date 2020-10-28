@@ -1,0 +1,71 @@
+struct sSquare
+{
+    vec2 origin;
+    float height;
+    float width;
+};
+
+void initSquare(out sSquare square, in vec2 origin, in float height, in float width)
+{
+    square.origin = origin;
+    square.height = height;
+    square.width = width;
+}
+
+//Rotate around cube map dependent on ray
+color4 cubeMap(in sRay ray, in samplerCube channel2)
+{
+    return texture(channel2, ray.direction.xyz); //Returns calculated texture
+}
+
+// calcColor: calculate the color of current pixel
+//	  vp:  input viewport info
+//	  ray: input ray info
+color4 calcColor(in sViewport vp, in sRay ray)
+{
+    //Determining location of pixel
+    sCoord px = vp.pixelCoord;
+    sDCoord res = iChannelResolution[0].xy;
+    sScalar ratio = res.y * vp.resolutionInv.y;
+    sCoord loc = px / res;
+    loc = ratio * loc;// + iTime; // zoom + shift
+    
+    ray.direction = ray.direction * rotationY(iTime * 0.5); 
+    
+    sSquare square;
+    initSquare(square, vec2(0.9, 0.5), 0.75, 0.75);
+    
+    if(square.origin.x - square.width / 2.0 < loc.x && loc.x < square.origin.x + square.width / 2.0)
+    {
+        if(square.origin.y - square.height / 2.0 < loc.y && loc.y < square.origin.y + square.height / 2.0)
+    	{
+        	return texture(iChannel0, loc);
+        }
+    }
+    
+    return cubeMap(ray, iChannel1);
+}
+
+//------------------------------------------------------------
+// SHADERTOY MAIN
+
+// mainImage: process the current pixel (exactly one call per pixel)
+//    fragColor: output final color for current pixel
+//    fragCoord: input location of current pixel in image (in pixels)
+void mainImage(out color4 fragColor, in sCoord fragCoord)
+{
+    // viewing plane (viewport) inputs
+    const sBasis eyePosition = sBasis(0.0);
+    const sScalar viewportHeight = 2.0, focalLength = 1.5;
+    
+    // viewport info
+    sViewport vp;
+
+    // ray
+    sRay ray;
+    
+    // render
+    initViewport(vp, viewportHeight, focalLength, fragCoord, iResolution.xy);
+    initRayPersp(ray, eyePosition, vp.viewportPoint.xyz);
+    fragColor += calcColor(vp, ray);
+}
