@@ -1,29 +1,28 @@
-struct sSquare
+struct sCircle
 {
     vec2 origin;
-    float height;
-    float width;
+    float radius;
 };
-
-void initSquare(out sSquare square, in vec2 origin, in float height, in float width)
+    
+void initCircle(out sCircle circle, in vec2 origin, in float radius)
 {
-    square.origin = origin;
-    square.height = height;
-    square.width = width;
+    circle.origin = origin;
+    circle.radius = radius;
 }
 
-//Rotate around cube map dependent on ray
-color4 cubeMap(in sRay ray, in samplerCube channel2)
+vec4 hitCircle(sCircle circle, sCoord loc, sRay ray)
 {
-    return texture(channel2, ray.direction.xyz); //Returns calculated texture
-}
-
-bool hitSquare(sSquare square, sCoord loc, sRay ray)
-{
-    if(square.origin.x - square.width / 2.0 < loc.x && loc.x < square.origin.x + square.width / 2.0)
+    float dis = distance(loc, circle.origin);
+    
+    vec4 color1 = texture(iChannel0, loc);
+    vec4 color2 = texture(iChannel1, loc);
+    
+    if(dis > circle.radius)
     {
-        return square.origin.y - square.height / 2.0 < loc.y && loc.y < square.origin.y + square.height / 2.0;
+        return color2;
     }
+    
+    return color1;
 }
 
 // calcColor: calculate the color of current pixel
@@ -38,19 +37,13 @@ color4 calcColor(in sViewport vp, in sRay ray)
     sCoord loc = px / res;
     loc = ratio * loc;// + iTime; // zoom + shift
     
-    ray.direction = ray.direction * rotationY(iTime * 0.5); 
     
-    sSquare square;
-    initSquare(square, vec2(0.5, 0.5), 0.75, 0.5);
+    sCircle circle;
+    initCircle(circle, vec2(0.45, 0.375), sin(iTime) + 0.5);
     
-    vec2 topLeft = vec2(square.origin.x - square.width / 2.0, square.origin.y - square.height / 2.0);
+    return hitCircle(circle, loc, ray);
     
-    if(hitSquare(square, loc, ray))
-    {
-        return texture(iChannel0, loc - topLeft);
-    }
-    
-    return cubeMap(ray, iChannel1);
+    //return texture(iChannel0, loc);
 }
 
 //------------------------------------------------------------
