@@ -1,3 +1,9 @@
+/*
+ Author:				Cameron-Murphy
+ Class:					GPR-200-01
+ Assignment:			Midterm
+ Due Date:              10/29/20
+*/
 
 //------------------------------------------------------------
 // SHADERTOY MAIN
@@ -10,5 +16,6 @@ void mainImage(out color4 fragColor, in sCoord fragCoord)
      // test UV for input image
     sCoord uv = fragCoord / iChannelResolution[0].xy;
     
+    // calls texture from buffer A
     fragColor = texture(iChannel0, uv);
 }

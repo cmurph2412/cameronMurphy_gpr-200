@@ -1,28 +1,28 @@
+/*
+ Author:				Cameron-Murphy
+ Class:					GPR-200-01
+ Assignment:			Midterm
+ Due Date:              10/29/20
+*/
+
+//Structure for circle object
 struct sCircle
 {
     vec2 origin;
     float radius;
 };
-    
+
+//Initializes circle object
 void initCircle(out sCircle circle, in vec2 origin, in float radius)
 {
     circle.origin = origin;
     circle.radius = radius;
 }
 
-vec4 hitCircle(sCircle circle, sCoord loc, sRay ray)
+//Determines if circle is hit
+bool hitCircle(sCircle circle, sCoord loc)
 {
-    float dis = distance(loc, circle.origin);
-    
-    vec4 color1 = texture(iChannel0, loc);
-    vec4 color2 = texture(iChannel1, loc);
-    
-    if(dis > circle.radius)
-    {
-        return color2;
-    }
-    
-    return color1;
+    return distance(loc, circle.origin) < circle.radius;
 }
 
 // calcColor: calculate the color of current pixel
@@ -37,13 +37,18 @@ color4 calcColor(in sViewport vp, in sRay ray)
     sCoord loc = px / res;
     loc = ratio * loc;// + iTime; // zoom + shift
     
-    
+    //Initializes circle
     sCircle circle;
-    initCircle(circle, vec2(0.45, 0.375), sin(iTime) + 0.5);
+    initCircle(circle, vec2(0.55, 0.5), sin(iTime) + 0.5); //Circle changes size with sin
     
-    return hitCircle(circle, loc, ray);
+    //If circle is hit returns channel0
+    if(hitCircle(circle, loc))
+    {
+        return texture(iChannel0, loc);
+    }
     
-    //return texture(iChannel0, loc);
+    //If circle isn't hit returns channel1
+    return texture(iChannel1, loc);
 }
 
 //------------------------------------------------------------

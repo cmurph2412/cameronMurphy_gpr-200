@@ -138,6 +138,7 @@ void initViewport(out sViewport vp,
     vp.viewportPoint = asPoint(sBasis(vp.ndc * vp.size * 0.5, -vp.focalLength));
 }
 
+//structure for ray type
 struct sRay
 {
     sPoint origin;
@@ -171,19 +172,3 @@ void initRayOrtho(out sRay ray,
     initRayPersp(ray, eyePosition + sBasis(viewport.xy, 0.0), viewport);
 }
 
-//Point light struct (taken from my lab 4)
-struct sPointLight
-{
-    vec4 center;
-    vec4 color;
-    float intensity;
-};
-
-//Initiates point light object (taken from my lab 4)
-bool initLight(out sPointLight light, in vec3 center, in vec3 color, in float intensity)
-{
-	light.center = asPoint(center);
-    light.color = asPoint(color);
-    light.intensity = intensity;
-    return true;
-}
