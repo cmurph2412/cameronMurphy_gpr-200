@@ -1,50 +1,21 @@
-uniform mat4 uViewMat;
-uniform mat4 uProjMat;
-uniform mat4 uViewProjMat
+#version 300 es
+//#version 450
 
-//Varying
-//Per-Vertex: final color
-out vec4 vColor;
+#ifdef GL_ES
+precision highp float;
+#endif
+
+layout (location = 0) out vec4 rtFragColor;
+
 
 //Per-Fragment: individual components
-out vec3 vNormal;
+in vec4 vNormal;
+in vec4 vTexCoord;
 
 void main()
 {
-	//Required: set this value
-	//problem: gl_position is in clip-space
-	//problem: aPosition is in object-space
-	
-	//position in world space
-	//vec4 pos-world = uModelMat * aPosition;
-	//gl_Position = pos_world;
-
-	//position in camera space
-	//vec4 pos_camera = uViewMat * pos_world
-	//vec4 pos_camera = uViewMat * uModelMat * aPosition;
-	//gl_Position = pos_camera
-
-	//Position in clip space (correct)
-	//vec4 pos_clip = uViewProjMat * pos_world;
-	//vec4 pos_clip = uProjMat * uViewMat * uModelMat * aPosition;
-
-	//Final Position Pipeline
-	mat4 modelViewMat = uViewMat * uModelMat;
-	vec4 pos_camera = modelViewMat * aPosition;
-	vec4 pos_clip = uProjMat * pos_camera;
-	gl_Position = pos_clip
-
-	//Normal Pipeline
-	//mat4 normalMatrix = inverse(transpose(modelViewMat));
-	//vec4 norm_camera = modelViewMat * vec4(aNormal, 0.0);
-	//vec3 norm_camera3 = mat3(modelViewMat) * aNormal;
-	mat3 normalMatrix = transpose(inverse(mat3(modelViewMat)));
-	vec3 norm_camera = normalMatrix * aNormal;
-
-	//Per-Vertex Output
-	//vColor = vec4(aNormal * 0.5 + 0.5, 1.0);
-	
-	//Per-Fragment Outputs
-	//vNormal = vec4(aNormal, 0.0);
-	vNormal = norm_camera;
+	//Per Fragment
+	vec4 N = normalize(vNormal);
+	//rtFragColor = vec4(N.xyz * 0.5 + 0.5, 1.0);
+	rtFragColor = vTexCoord;
 }

@@ -1,13 +1,27 @@
+#version 300 es
+//#version 450
+
+//Main Duty
+//eg. 3D position in space
+//eg. uv: texture coordinate
+//eg. normal
+
+layout (location = 0) in vec4 aPosition;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec4 aTexCoord;
+
+uniform mat4 uModelMat;
 uniform mat4 uViewMat;
 uniform mat4 uProjMat;
-uniform mat4 uViewProjMat
+uniform mat4 uViewProjMat;
 
 //Varying
 //Per-Vertex: final color
-out vec4 vColor;
+//out vec4 vColor;
 
 //Per-Fragment: individual components
-out vec3 vNormal;
+out vec4 vNormal;
+out vec4 vTexCoord;
 
 void main()
 {
@@ -32,7 +46,7 @@ void main()
 	mat4 modelViewMat = uViewMat * uModelMat;
 	vec4 pos_camera = modelViewMat * aPosition;
 	vec4 pos_clip = uProjMat * pos_camera;
-	gl_Position = pos_clip
+	gl_Position = pos_clip;
 
 	//Normal Pipeline
 	//mat4 normalMatrix = inverse(transpose(modelViewMat));
@@ -40,11 +54,21 @@ void main()
 	//vec3 norm_camera3 = mat3(modelViewMat) * aNormal;
 	mat3 normalMatrix = transpose(inverse(mat3(modelViewMat)));
 	vec3 norm_camera = normalMatrix * aNormal;
+	
+	//TexCoord Pipeline
+	mat4 atlasMat = mat4(0.5, 0.0, 0.0, 0.0,
+						 0.0, 0.5, 0.0, 0.0,
+						 0.0, 0.0, 1.0, 0.0,
+						 0.25, 0.25, 0.0, 1.0); //0.25 position, 0.5 scale
+	vec4 uv_atlas = atlasMat * aTexCoord;
 
 	//Per-Vertex Output
 	//vColor = vec4(aNormal * 0.5 + 0.5, 1.0);
 	
 	//Per-Fragment Outputs
 	//vNormal = vec4(aNormal, 0.0);
-	vNormal = norm_camera;
+	vNormal = vec4(norm_camera, 0.0);
+	vTexCoord = uv_atlas;
+	
+	//gl_Position = uProjMat * modelViewMat * aTexCoord;
 }
