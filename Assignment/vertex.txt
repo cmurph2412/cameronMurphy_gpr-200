@@ -71,4 +71,5 @@ void main()
 	vTexCoord = uv_atlas;
 	
 	//gl_Position = uProjMat * modelViewMat * aTexCoord;
+	//gl_Position = aTexCoord;
 }
