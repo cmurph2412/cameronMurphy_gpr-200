@@ -7,6 +7,9 @@ precision highp float;
 
 layout (location = 0) out vec4 rtFragColor;
 
+//Uniform texture
+uniform sampler2D uEarth;
+
 //Point light struct
 struct sPointLight
 {
@@ -35,7 +38,7 @@ vec4 calculateLighting(in sPointLight light, in vec4 position, in vec4 normal, i
 	float attenuatedIntensity = 1.0 / (1.0 + pointDistance / light.intensity + (pointDistance * pointDistance) / (light.intensity * light.intensity));
     float diffuseIntensity = max(0.0, dot(lightVector, normal));
     
-    float highlightExponent = 20.0;
+    float highlightExponent = 2.0;
     float higherExponent = highlightExponent * 4.0;
     vec4 reflectedLightVector = reflect(-lightVector, normal);
     
@@ -58,6 +61,7 @@ vec4 calculateLighting(in sPointLight light, in vec4 position, in vec4 normal, i
 //Per-Fragment: individual components
 in vec4 vNormal;
 in vec4 vTexCoord;
+in sPointLight vLight;
 
 //Per-Vertex
 in vec4 vColor;
@@ -65,26 +69,16 @@ in vec4 vColor;
 void main()
 {
 	//Per-Vertex
-	//rtFragColor = vColor;
+	rtFragColor = vColor;
 	
 	
 	//Per-Fragment
-	vec4 N = normalize(vNormal);
+	//vec4 N = normalize(vNormal);
 	
-	sPointLight light;
-	initLight(light, vec4(0.0, 2.0, 1.5, 1.0), vec4(0.75, 0.75, 1.0, 0.0), 5.0 );
-	vec4 position = vec4(0.0, 0.0, 0.0, 1.0);
+	//sPointLight light;
+	//initLight(light, vec4(1.0, 1.5, 1.5, 1.0), vec4(0.75, 0.75, 1.0, 0.0), 5.0 );
+    //vec4 position = vec4(0.0, 0.0, 0.0, 1.0);
 	
-	rtFragColor = calculateLighting(light, position, N, vTexCoord);
-	
-	/*
-	sPointLight light;
-	initLight(light, vec4(0.0, 1.0, 1.5, 1.0), vec4(0.75, 0.75, 1.0, 0.0), 5.0 );
-	vec4 position = vec4(0.0, 0.0, 0.0, 1.0);
-	*/
-	
-	//rtFragColor = calculateLighting(light, position, N, vTexCoord);
-	//rtFragColor = vec4(N.xyz * 0.5 + 0.5, 1.0);
-	//rtFragColor = tex(earth_dm.png, vTexCoord);
-	//rtFragColor = vTexCoord;
+	//vec4 color = texture(uEarth, vTexCoord.xy);
+	//rtFragColor = calculateLighting(vLight, position, N, color);
 }

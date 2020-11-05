@@ -31,21 +31,26 @@ void initLight(out sPointLight light, in vec4 center, in vec4 color, in float in
     light.intensity = intensity;
 }
 
+//Calculates lighting
 vec4 calculateLighting(in sPointLight light, in vec4 position, in vec4 normal, in vec4 baseColor, in vec4 viewportPos)
 {
-	vec4 specularReflectionColor = vec4(1.0, 1.0, 1.0, 1.0);
-	vec4 globalAmbientColor = vec4(1.0, 0.0, 0.0, 1.0);
-	float globalLightIntensity = 0.01;
+	//Const variables
+	const vec4 specularReflectionColor = vec4(1.0, 1.0, 1.0, 1.0);
+	const vec4 globalAmbientColor = vec4(1.0, 0.0, 0.0, 1.0);
+	const float globalLightIntensity = 0.01;
 
+	//Determining the diffuse intensity
 	vec4 lightVector = normalize(light.center - position);
 	float pointDistance = distance(position, light.center);
 	float attenuatedIntensity = 1.0 / (1.0 + pointDistance / light.intensity + (pointDistance * pointDistance) / (light.intensity * light.intensity));
     float diffuseIntensity = max(0.0, dot(lightVector, normal));
     
+    //Determining the reflected light vector
     float highlightExponent = 20.0;
     float higherExponent = highlightExponent * 4.0;
     vec4 reflectedLightVector = reflect(-lightVector, normal);
     
+    //Determing the specular coeffecient
     vec4 viewVector = normalize(viewportPos - position);
     float specularCoeffecient = max(0.0, dot(viewVector, reflectedLightVector)); 
             
@@ -55,7 +60,7 @@ vec4 calculateLighting(in sPointLight light, in vec4 position, in vec4 normal, i
     //Adds value to the color variable
     vec4 colorVariable = (diffuseIntensity * baseColor + specularIntensity * specularReflectionColor) * light.color;
     
-    return globalLightIntensity * globalAmbientColor + colorVariable;
+    return globalLightIntensity * globalAmbientColor + colorVariable; //Adds light to the current color
 }
 
 //Varying
@@ -65,6 +70,10 @@ out vec4 vColor;
 //Per-Fragment: individual components
 out vec4 vNormal;
 out vec4 vTexCoord;
+out sPointLight vLight;
+
+//Texture sampler
+uniform sampler2D uEarth;
 
 void main()
 {
@@ -99,34 +108,41 @@ void main()
 	vec3 norm_camera = normalMatrix * aNormal;
 	
 	//TexCoord Pipeline
-	/*mat4 atlasMat = mat4(0.5, 0.0, 0.0, 0.0,
+	mat4 atlasMat = mat4(0.5, 0.0, 0.0, 0.0,
 						 0.0, 0.5, 0.0, 0.0,
 						 0.0, 0.0, 1.0, 0.0,
 						 0.25, 0.25, 0.0, 1.0); //0.25 position, 0.5 scale
-						 */
-    mat4 atlasMat = mat4(1.0);
+						 
+    //mat4 atlasMat = mat4(1.0);
 	vec4 uv_atlas = atlasMat * aTexCoord;
-	
-	//Per-Vertex
-	
-	/*
-	sPointLight light;
-	initLight(light, vec4(-1.0, -1.0, 1.5, 1.0), vec4(0.75, 0.75, 1.0, 0.0), 5.0 );
-	
-	vColor = vec4(aNormal * 0.5 + 0.5, 1.0);
-	*/
-	
-	//View Space
-	//vColor = calculateLighting(light, gl_Position, vec4(norm_camera, 1.0), vColor,  pos_camera);
-	
-	//Object Space
-	//vColor = calculateLighting(light, aPosition, vec4(norm_camera, 1.0), vColor,  pos_camera);
-	
-	//Per-Fragment Outputs
-	vNormal = vec4(aNormal, 0.0);
-	vNormal = vec4(norm_camera, 0.0);
 	vTexCoord = uv_atlas;
 	
-	//gl_Position = uProjMat * modelViewMat * aTexCoord;
-	//gl_Position = aTexCoord;
+	//Initiate Lighting
+	sPointLight light;
+	initLight(light, vec4(-1.0, -2.0, 1.5, 1.0), vec4(0.75, 0.75, 1.0, 0.0), 5.0 );
+	
+	//PER-VERTEX
+	
+	//Initiate Color
+	//vColor = vec4(aNormal * 0.5 + 0.5, 1.0); //Base Color
+	
+	vColor = texture(uEarth, vTexCoord.xy); //Earth Texture
+	
+	//View Space
+	vColor = calculateLighting(light, vTexCoord, vec4(norm_camera, 1.0), vColor, pos_camera);
+	
+	//Object Space (not working (is the same as view space))
+	//vColor = calculateLighting(light, vTexCoord, vec4(norm_camera, 1.0), vColor,  pos_camera);
+	
+	
+	//PER-FRAGMENT
+	
+	//sPointLight light;
+	//initLight(vLight, vec4(-1.0, -2.0, 1.5, 1.0), vec4(0.75, 0.75, 1.0, 0.0), 5.0 );
+	
+	//Object Space
+	//vNormal = vec4(aNormal, 0.0);
+	
+	//View Space
+	//vNormal = vec4(norm_camera, 0.0);
 }
