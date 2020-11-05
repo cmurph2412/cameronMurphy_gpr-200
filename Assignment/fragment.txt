@@ -1,5 +1,12 @@
 #version 300 es
 //#version 450
+/*
+ Author:				Cameron-Murphy
+ Class:					GPR-200-01
+ Assignment:			Lab 7: Intro to Vertex Shaders and Transformations
+ Due Date:              11/5/20
+*/
+// GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
 
 #ifdef GL_ES
 precision highp float;
@@ -26,22 +33,27 @@ void initLight(out sPointLight light, in vec4 center, in vec4 color, in float in
     light.intensity = intensity;
 }
 
+//Calculates lighting
 vec4 calculateLighting(in sPointLight light, in vec4 position, in vec4 normal, in vec4 baseColor)
 {
+	//Const variables
 	vec4 viewportPos = vec4(0.0);
 	vec4 specularReflectionColor = vec4(1.0, 1.0, 1.0, 1.0);
 	vec4 globalAmbientColor = vec4(1.0, 0.0, 0.0, 1.0);
 	float globalLightIntensity = 0.01;
 
+	//Determining the diffuse intensity
 	vec4 lightVector = normalize(light.center - position);
 	float pointDistance = distance(position, light.center);
 	float attenuatedIntensity = 1.0 / (1.0 + pointDistance / light.intensity + (pointDistance * pointDistance) / (light.intensity * light.intensity));
     float diffuseIntensity = max(0.0, dot(lightVector, normal));
     
+    //Determining the reflected light vector
     float highlightExponent = 2.0;
     float higherExponent = highlightExponent * 4.0;
     vec4 reflectedLightVector = reflect(-lightVector, normal);
     
+    //Determing the specular coeffecient
     vec4 viewVector = normalize(viewportPos - position);
     float specularCoeffecient = max(0.0, dot(viewVector, reflectedLightVector)); 
             
@@ -69,16 +81,16 @@ in vec4 vColor;
 void main()
 {
 	//Per-Vertex
-	rtFragColor = vColor;
+	//rtFragColor = vColor;
 	
 	
 	//Per-Fragment
-	//vec4 N = normalize(vNormal);
+	vec4 N = normalize(vNormal);
 	
-	//sPointLight light;
-	//initLight(light, vec4(1.0, 1.5, 1.5, 1.0), vec4(0.75, 0.75, 1.0, 0.0), 5.0 );
-    //vec4 position = vec4(0.0, 0.0, 0.0, 1.0);
+    sPointLight light;
+	initLight(light, vec4(-1.0, 1.5, 1.5, 1.0), vec4(0.75, 0.75, 1.0, 0.0), 5.0 );
+    vec4 position = vec4(0.0, 0.0, 0.0, 1.0);
 	
-	//vec4 color = texture(uEarth, vTexCoord.xy);
-	//rtFragColor = calculateLighting(vLight, position, N, color);
+	vec4 color = texture(uEarth, vTexCoord.xy);
+	rtFragColor = calculateLighting(light, position, N, color);
 }
