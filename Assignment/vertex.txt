@@ -107,17 +107,25 @@ void main()
     mat4 atlasMat = mat4(1.0);
 	vec4 uv_atlas = atlasMat * aTexCoord;
 	
-	//Per-Vertex, View-Space
+	//Per-Vertex
+	
+	/*
 	sPointLight light;
 	initLight(light, vec4(-1.0, -1.0, 1.5, 1.0), vec4(0.75, 0.75, 1.0, 0.0), 5.0 );
 	
 	vColor = vec4(aNormal * 0.5 + 0.5, 1.0);
-	vColor = calculateLighting(light, aPosition, vec4(norm_camera, 1.0), vColor,  pos_camera);
+	*/
+	
+	//View Space
+	//vColor = calculateLighting(light, gl_Position, vec4(norm_camera, 1.0), vColor,  pos_camera);
+	
+	//Object Space
+	//vColor = calculateLighting(light, aPosition, vec4(norm_camera, 1.0), vColor,  pos_camera);
 	
 	//Per-Fragment Outputs
-	//vNormal = vec4(aNormal, 0.0);
-	//vNormal = vec4(norm_camera, 0.0);
-	//vTexCoord = uv_atlas;
+	vNormal = vec4(aNormal, 0.0);
+	vNormal = vec4(norm_camera, 0.0);
+	vTexCoord = uv_atlas;
 	
 	//gl_Position = uProjMat * modelViewMat * aTexCoord;
 	//gl_Position = aTexCoord;

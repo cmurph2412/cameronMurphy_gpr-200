@@ -7,7 +7,6 @@ precision highp float;
 
 layout (location = 0) out vec4 rtFragColor;
 
-/*
 //Point light struct
 struct sPointLight
 {
@@ -55,9 +54,6 @@ vec4 calculateLighting(in sPointLight light, in vec4 position, in vec4 normal, i
     
     return globalLightIntensity * globalAmbientColor + colorVariable;
 }
-*/
-
-
 
 //Per-Fragment: individual components
 in vec4 vNormal;
@@ -69,10 +65,18 @@ in vec4 vColor;
 void main()
 {
 	//Per-Vertex
-	rtFragColor = vColor;
+	//rtFragColor = vColor;
 	
-	//Per Fragment
-	//vec4 N = normalize(vNormal);
+	
+	//Per-Fragment
+	vec4 N = normalize(vNormal);
+	
+	sPointLight light;
+	initLight(light, vec4(0.0, 2.0, 1.5, 1.0), vec4(0.75, 0.75, 1.0, 0.0), 5.0 );
+	vec4 position = vec4(0.0, 0.0, 0.0, 1.0);
+	
+	rtFragColor = calculateLighting(light, position, N, vTexCoord);
+	
 	/*
 	sPointLight light;
 	initLight(light, vec4(0.0, 1.0, 1.5, 1.0), vec4(0.75, 0.75, 1.0, 0.0), 5.0 );
