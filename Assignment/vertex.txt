@@ -15,9 +15,52 @@ uniform mat4 uViewMat;
 uniform mat4 uProjMat;
 uniform mat4 uViewProjMat;
 
+//Point light struct
+struct sPointLight
+{
+    vec4 center;
+    vec4 color;
+    float intensity;
+};
+
+//Initiates point light object
+void initLight(out sPointLight light, in vec4 center, in vec4 color, in float intensity)
+{
+	light.center = center;
+    light.color = color;
+    light.intensity = intensity;
+}
+
+vec4 calculateLighting(in sPointLight light, in vec4 position, in vec4 normal, in vec4 baseColor, in vec4 viewportPos)
+{
+	vec4 specularReflectionColor = vec4(1.0, 1.0, 1.0, 1.0);
+	vec4 globalAmbientColor = vec4(1.0, 0.0, 0.0, 1.0);
+	float globalLightIntensity = 0.01;
+
+	vec4 lightVector = normalize(light.center - position);
+	float pointDistance = distance(position, light.center);
+	float attenuatedIntensity = 1.0 / (1.0 + pointDistance / light.intensity + (pointDistance * pointDistance) / (light.intensity * light.intensity));
+    float diffuseIntensity = max(0.0, dot(lightVector, normal));
+    
+    float highlightExponent = 20.0;
+    float higherExponent = highlightExponent * 4.0;
+    vec4 reflectedLightVector = reflect(-lightVector, normal);
+    
+    vec4 viewVector = normalize(viewportPos - position);
+    float specularCoeffecient = max(0.0, dot(viewVector, reflectedLightVector)); 
+            
+    //Phong
+    float specularIntensity = pow(specularCoeffecient, highlightExponent);
+            
+    //Adds value to the color variable
+    vec4 colorVariable = (diffuseIntensity * baseColor + specularIntensity * specularReflectionColor) * light.color;
+    
+    return globalLightIntensity * globalAmbientColor + colorVariable;
+}
+
 //Varying
 //Per-Vertex: final color
-//out vec4 vColor;
+out vec4 vColor;
 
 //Per-Fragment: individual components
 out vec4 vNormal;
@@ -56,19 +99,25 @@ void main()
 	vec3 norm_camera = normalMatrix * aNormal;
 	
 	//TexCoord Pipeline
-	mat4 atlasMat = mat4(0.5, 0.0, 0.0, 0.0,
+	/*mat4 atlasMat = mat4(0.5, 0.0, 0.0, 0.0,
 						 0.0, 0.5, 0.0, 0.0,
 						 0.0, 0.0, 1.0, 0.0,
 						 0.25, 0.25, 0.0, 1.0); //0.25 position, 0.5 scale
+						 */
+    mat4 atlasMat = mat4(1.0);
 	vec4 uv_atlas = atlasMat * aTexCoord;
-
-	//Per-Vertex Output
-	//vColor = vec4(aNormal * 0.5 + 0.5, 1.0);
+	
+	//Per-Vertex, View-Space
+	sPointLight light;
+	initLight(light, vec4(-1.0, -1.0, 1.5, 1.0), vec4(0.75, 0.75, 1.0, 0.0), 5.0 );
+	
+	vColor = vec4(aNormal * 0.5 + 0.5, 1.0);
+	vColor = calculateLighting(light, aPosition, vec4(norm_camera, 1.0), vColor,  pos_camera);
 	
 	//Per-Fragment Outputs
 	//vNormal = vec4(aNormal, 0.0);
-	vNormal = vec4(norm_camera, 0.0);
-	vTexCoord = uv_atlas;
+	//vNormal = vec4(norm_camera, 0.0);
+	//vTexCoord = uv_atlas;
 	
 	//gl_Position = uProjMat * modelViewMat * aTexCoord;
 	//gl_Position = aTexCoord;
