@@ -9,7 +9,10 @@ out vec4 vNormal;
 
 void main()
 {
-	gl_Position = uProjMat * uViewMat * uModelMat * aPosition;
+	mat4 modelViewMat = uViewMat * uModelMat;
+	vec4 pos_camera = modelViewMat * aPosition;
+	vec4 pos_clip = uProjMat * pos_camera;
+	gl_Position = pos_clip;
 	
 	vNormal = vec4(aNormal, 0.0);
 }
