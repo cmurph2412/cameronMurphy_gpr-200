@@ -1,0 +1,16 @@
+#version 300 es
+
+#ifdef GL_ES
+precision highp float;
+#endif //GL_ES
+
+in vec4 vNormal;
+
+uniform sampler2D uTex;
+
+layout (location = 0) out vec4 rtFragColor;
+
+void main()
+{
+	rtFragColor = texture(uTex, vNormal.xy);
+}
