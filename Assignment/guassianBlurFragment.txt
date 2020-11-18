@@ -1,0 +1,41 @@
+#version 300 es
+
+#ifdef GL_ES
+precision highp float;
+#endif //GL_ES
+
+layout (location = 0) out vec4 rtFragColor;
+
+in vec2 vTexcoord;
+
+uniform vec2 uResolution;
+uniform sampler2D uTex;
+
+//Determines individual elements for guassian blur
+vec4 guassianKernel(in vec2 fragCoord, in float weight, in float xLoc, in float yLoc)
+{
+    //Changes coord depending on how many pixels away
+    fragCoord.x = fragCoord.x + xLoc;
+    fragCoord.y = fragCoord.y + yLoc;
+    vec2 uv = fragCoord / uResolution;
+    
+    //multiplies determined texture to weight
+    return weight * texture(uTex, uv);
+}
+
+void main()
+{
+	//sampler, uv
+	vec2 fragCoord = vTexcoord;
+	//vec4 col = texture(uTex, uv);
+	
+	rtFragColor = ((1.0 / 273.0) * (guassianKernel(fragCoord, 1.0, -2.0, -2.0) + guassianKernel(fragCoord, 4.0, -1.0, -2.0) + guassianKernel(fragCoord, 7.0, 0.0, -2.0) + guassianKernel(fragCoord, 4.0, 1.0, -2.0) + guassianKernel(fragCoord, 1.0, 2.0, -2.0)
+                              + guassianKernel(fragCoord, 4.0, -2.0, -1.0) + guassianKernel(fragCoord, 16.0, -1.0, -1.0) + guassianKernel(fragCoord, 26.0, 0.0, -1.0) + guassianKernel(fragCoord, 16.0, 1.0, -1.0) + guassianKernel(fragCoord, 4.0, 2.0, -1.0)
+                              + guassianKernel(fragCoord, 7.0, -2.0, 0.0) + guassianKernel(fragCoord, 26.0, -1.0, 0.0) + guassianKernel(fragCoord, 41.0, 0.0, 0.0) + guassianKernel(fragCoord, 26.0, 1.0, 0.0) + guassianKernel(fragCoord, 7.0, 2.0, 0.0)
+                              + guassianKernel(fragCoord, 4.0, -2.0, 1.0) + guassianKernel(fragCoord, 16.0, -1.0, 1.0) + guassianKernel(fragCoord, 26.0, 0.0, 1.0) + guassianKernel(fragCoord, 16.0, 1.0, 1.0) + guassianKernel(fragCoord, 4.0, 2.0, 1.0)
+                              + guassianKernel(fragCoord, 1.0, -2.0, 2.0) + guassianKernel(fragCoord, 4.0, -1.0, 2.0) + guassianKernel(fragCoord, 7.0, 0.0, 2.0) + guassianKernel(fragCoord, 4.0, 1.0, 2.0) + guassianKernel(fragCoord, 1.0, 2.0, 2.0)));
+	
+	//setting color
+	//rtFragColor = vec4(uv, 0.0, 1.0);
+	//rtFragColor = col;
+}

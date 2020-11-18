@@ -1,0 +1,31 @@
+#version 300 es
+
+#ifdef GL_ES
+precision highp float;
+#endif //GL_ES
+
+layout (location = 0) out vec4 rtFragColor;
+
+in vec2 vTexcoord;
+
+uniform vec2 uResolution;
+uniform sampler2D uTex;
+
+void main()
+{
+	//sampler, uv
+	vec2 uv = vTexcoord;
+	vec4 col = texture(uTex, uv);
+	col = vec4(1.0, 0.0, 0.0, 1.0);
+	
+	//BLOOM
+    float contrast = 4.0;
+    float luminance = (col.x * 0.2126 + col.y * 0.7152 + col.z * 0.072); //Relative luminance formula
+    luminance = pow(luminance, contrast);
+    vec4 col2 = vec4(vec3(1.0) - exp(-col.xyz * luminance), 1.0);
+	
+	//setting color
+	//rtFragColor = vec4(uv, 0.0, 1.0);
+	rtFragColor = col + col2;
+	//rtFragColor = col;
+}

@@ -1,0 +1,12 @@
+#version 300 es
+
+layout (location = 0) in vec4 aPosition;
+layout (location = 2) in vec2 aTexcoord;
+
+out vec2 vTexcoord;
+
+void main()
+{
+	gl_Position = aPosition;
+	vTexcoord = aPosition.xy * 0.5 + 0.5;
+}
