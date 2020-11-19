@@ -1,4 +1,11 @@
 #version 300 es
+/*
+ Author:				Cameron-Murphy
+ Class:					GPR-200-01
+ Assignment:			Lab 8: Shader Pipelines
+ Due Date:              11/19/20
+*/
+// GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
 
 #ifdef GL_ES
 precision highp float;
@@ -18,6 +25,6 @@ void main()
 	vec4 col = texture(uTex, uv);
 	
 	//setting color
-	//rtFragColor = vec4(uv, 0.0, 1.0);
 	rtFragColor = col;
+	
 }

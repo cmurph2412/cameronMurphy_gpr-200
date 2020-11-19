@@ -1,18 +1,39 @@
 #version 300 es
+/*
+ Author:				Cameron-Murphy
+ Class:					GPR-200-01
+ Assignment:			Lab 8: Shader Pipelines
+ Due Date:              11/19/20
+*/
+// GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
 
 layout (location = 0) in vec4 aPosition;
 layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec4 aTexCoord;
 
-uniform mat4 uModelMat, uViewMat, uProjMat;
+//Defining Scene Uniforms
+uniform mat4 uModelMat, uViewMat, uProjMat, uViewProjMat;
 
+//Variables sent to fragment
 out vec4 vNormal;
+out vec4 vTexCoord;
 
 void main()
 {
+	//Determining gl_Position
 	mat4 modelViewMat = uViewMat * uModelMat;
 	vec4 pos_camera = modelViewMat * aPosition;
 	vec4 pos_clip = uProjMat * pos_camera;
 	gl_Position = pos_clip;
 	
-	vNormal = vec4(aNormal, 0.0);
+	//Determine camera
+	mat3 normalMatrix = transpose(inverse(mat3(modelViewMat)));
+	vec3 norm_camera = normalMatrix * aNormal;
+	
+	//Calculating atlas
+	mat4 atlasMat = mat4(1.0);
+	vec4 uv_atlas = atlasMat * aTexCoord;
+	vTexCoord = uv_atlas;
+	
+	vNormal = vec4(norm_camera, 0.0);
 }

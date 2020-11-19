@@ -1,4 +1,11 @@
 #version 300 es
+/*
+ Author:				Cameron-Murphy
+ Class:					GPR-200-01
+ Assignment:			Lab 8: Shader Pipelines
+ Due Date:              11/19/20
+*/
+// GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
 
 #ifdef GL_ES
 precision highp float;
@@ -20,22 +27,24 @@ vec4 guassianKernel(in vec2 fragCoord, in float weight, in float xLoc, in float 
     vec2 uv = fragCoord / uResolution;
     
     //multiplies determined texture to weight
-    return weight * texture(uTex, uv);
+    return/* weight * */texture(uTex, uv);
 }
 
 void main()
 {
 	//sampler, uv
 	vec2 fragCoord = vTexcoord;
-	//vec4 col = texture(uTex, uv);
+	vec4 col = texture(uTex, vTexcoord);
 	
+	//Calculates blur using 5x5 Guassian blur
 	rtFragColor = ((1.0 / 273.0) * (guassianKernel(fragCoord, 1.0, -2.0, -2.0) + guassianKernel(fragCoord, 4.0, -1.0, -2.0) + guassianKernel(fragCoord, 7.0, 0.0, -2.0) + guassianKernel(fragCoord, 4.0, 1.0, -2.0) + guassianKernel(fragCoord, 1.0, 2.0, -2.0)
                               + guassianKernel(fragCoord, 4.0, -2.0, -1.0) + guassianKernel(fragCoord, 16.0, -1.0, -1.0) + guassianKernel(fragCoord, 26.0, 0.0, -1.0) + guassianKernel(fragCoord, 16.0, 1.0, -1.0) + guassianKernel(fragCoord, 4.0, 2.0, -1.0)
                               + guassianKernel(fragCoord, 7.0, -2.0, 0.0) + guassianKernel(fragCoord, 26.0, -1.0, 0.0) + guassianKernel(fragCoord, 41.0, 0.0, 0.0) + guassianKernel(fragCoord, 26.0, 1.0, 0.0) + guassianKernel(fragCoord, 7.0, 2.0, 0.0)
                               + guassianKernel(fragCoord, 4.0, -2.0, 1.0) + guassianKernel(fragCoord, 16.0, -1.0, 1.0) + guassianKernel(fragCoord, 26.0, 0.0, 1.0) + guassianKernel(fragCoord, 16.0, 1.0, 1.0) + guassianKernel(fragCoord, 4.0, 2.0, 1.0)
                               + guassianKernel(fragCoord, 1.0, -2.0, 2.0) + guassianKernel(fragCoord, 4.0, -1.0, 2.0) + guassianKernel(fragCoord, 7.0, 0.0, 2.0) + guassianKernel(fragCoord, 4.0, 1.0, 2.0) + guassianKernel(fragCoord, 1.0, 2.0, 2.0)));
+    //Test Color set                     
+	rtFragColor = col;
 	
-	//setting color
-	//rtFragColor = vec4(uv, 0.0, 1.0);
-	//rtFragColor = col;
+	//Color tint (test)
+	//rtFragColor = mix(col, vec4(1.0, 0.0, 0.0, 1.0), 0.1);
 }
